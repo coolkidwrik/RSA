@@ -1,0 +1,14 @@
+# FastAPI and other dependencies
+#####################################
+fastapi
+uvicorn
+pydantic
+pydantic-settings
+# System monitoring
+#####################################
+psutil
+# Development tools
+#####################################
+pytest
+pytest-asyncio
+httpx
