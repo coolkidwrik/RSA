@@ -1,19 +1,33 @@
+# Imports
+####################################################
+####################################################
+# API framework imports
+#################################
+import logging
+import time
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
-from contextlib import asynccontextmanager
-import logging
-import time
 
+# project imports
+#################################
 from api.router import api_router
 from config.settings import settings
 from models.schemas import ErrorResponse
 
-# Configure logging
+# Logging configs
+####################################################
+####################################################
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
+# App life-span
+####################################################
+####################################################
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
@@ -24,17 +38,24 @@ async def lifespan(app: FastAPI):
     # Shutdown
     logger.info("Shutting down RSA Cryptography API")
 
-# Create FastAPI application
+
+# Main App
+####################################################
+####################################################
+
+# contructing FASTAPI
+#################################
 app = FastAPI(
     title=settings.title,
     version=settings.version,
     description=settings.description,
     docs_url="/docs",
     redoc_url="/redoc",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
-# Add CORS middleware
+# CORS middleware
+#################################
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
@@ -43,25 +64,33 @@ app.add_middleware(
     allow_headers=settings.cors_allow_headers,
 )
 
-# Add trusted host middleware for production
+# setting hosts
+#################################
 if not settings.debug:
     app.add_middleware(
-        TrustedHostMiddleware,
-        allowed_hosts=["localhost", "127.0.0.1", "*.yourdomain.com"]
+        TrustedHostMiddleware, allowed_hosts=["localhost", "127.0.0.1"]  # "*.frontend.com"
     )
 
-# Custom exception handlers
+
+# Exception handling
+####################################################
+####################################################
+
+
+# Value Error Handling
+#################################
 @app.exception_handler(ValueError)
 async def value_error_handler(request, exc):
     return JSONResponse(
         status_code=400,
         content=ErrorResponse(
-            error="Invalid Input",
-            detail=str(exc),
-            timestamp=time.time()
-        ).dict()
+            error="Invalid Input", detail=str(exc), timestamp=time.time()
+        ).model_dump(),
     )
 
+
+# Any Exception Handling
+#################################
 @app.exception_handler(Exception)
 async def general_exception_handler(request, exc):
     logger.error(f"Unexpected error: {str(exc)}")
@@ -70,14 +99,21 @@ async def general_exception_handler(request, exc):
         content=ErrorResponse(
             error="Internal Server Error",
             detail="An unexpected error occurred" if not settings.debug else str(exc),
-            timestamp=time.time()
-        ).dict()
+            timestamp=time.time(),
+        ).model_dump(),
     )
 
-# Include API router
+
+# Router and Endpoints
+####################################################
+####################################################
+# Adding Router
+#################################
 app.include_router(api_router)
 
+
 # Root endpoint
+#################################
 @app.get("/")
 async def root():
     """Root endpoint with API information"""
@@ -85,21 +121,20 @@ async def root():
         "message": "RSA Cryptography API",
         "version": settings.version,
         "status": "running",
-        "documentation": {
-            "swagger_ui": "/docs",
-            "redoc": "/redoc"
-        },
+        "documentation": {"swagger_ui": "/docs", "redoc": "/redoc"},
         "endpoints": {
             "api_root": "/api/",
             "health_check": "/api/health/",
             "prime_generation": "/api/primes/generate",
             "key_generation": "/api/keys/generate",
             "encryption": "/api/crypto/encrypt",
-            "decryption": "/api/crypto/decrypt"
-        }
+            "decryption": "/api/crypto/decrypt",
+        },
     }
 
-# Middleware to add response time header
+
+# Middleware debugging wrapper
+#################################
 @app.middleware("http")
 async def add_process_time_header(request, call_next):
     start_time = time.time()
@@ -108,12 +143,16 @@ async def add_process_time_header(request, call_next):
     response.headers["X-Process-Time"] = str(process_time)
     return response
 
+
+# entry point
+#################################
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(
         "main:app",
         host="0.0.0.0",
         port=8000,
         reload=settings.debug,
-        log_level="info" if settings.debug else "warning"
+        log_level="info" if settings.debug else "warning",
     )

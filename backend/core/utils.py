@@ -1,13 +1,16 @@
-import psutil
 from typing import Dict
+
+import psutil
+
 
 def get_system_info() -> Dict[str, str]:
     """Get system information for health checks"""
     return {
         "cpu_percent": f"{psutil.cpu_percent()}%",
         "memory_percent": f"{psutil.virtual_memory().percent}%",
-        "available_memory": f"{psutil.virtual_memory().available // 1024 // 1024} MB"
+        "available_memory": f"{psutil.virtual_memory().available // 1024 // 1024} MB",
     }
+
 
 def format_large_number(number: int, max_digits: int = 50) -> str:
     """Format large numbers for display"""
@@ -15,6 +18,7 @@ def format_large_number(number: int, max_digits: int = 50) -> str:
     if len(num_str) <= max_digits:
         return num_str
     return f"{num_str[:max_digits//2]}...{num_str[-max_digits//2:]}"
+
 
 def calculate_key_strength(bit_length: int) -> str:
     """Calculate relative strength of RSA key"""
@@ -26,6 +30,7 @@ def calculate_key_strength(bit_length: int) -> str:
         return "Strong"
     else:
         return "Very Strong"
+
 
 def estimate_prime_generation_time(bit_length: int) -> float:
     """Estimate time needed for prime generation based on bit length"""
