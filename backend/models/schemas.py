@@ -87,7 +87,7 @@ class EncryptionResponse(BaseModel):
 
 
 class DecryptionRequest(BaseModel):
-    encrypted_blocks: List[str] = Field(min_items=1, description="List of encrypted blocks")
+    encrypted_blocks: List[str] = Field(min_length=1, description="List of encrypted blocks")
     n: str = Field(description="RSA modulus")
     d: str = Field(description="RSA private exponent")
 

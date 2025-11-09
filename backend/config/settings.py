@@ -1,5 +1,5 @@
 from typing import List
-
+from pydantic import ConfigDict
 from pydantic_settings import BaseSettings
 
 
@@ -36,8 +36,7 @@ class Settings(BaseSettings):
     debug: bool = True
 
     # else read config from .env file
-    class Config:
-        env_file = ".env"
+    model_config = ConfigDict(env_file=".env", extra="ignore")
 
 
 settings = Settings()

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, UTC
 
 from fastapi import APIRouter, Depends
 
@@ -21,7 +21,7 @@ async def health_check(state: AppState = Depends(get_app_state)):
 
     return HealthResponse(
         status="healthy",
-        timestamp=datetime.utcnow().isoformat(),
+        timestamp=datetime.now(UTC).isoformat(),
         primes_available=state.current_primes is not None,
         keys_generated=state.current_keypair is not None,
         system_info=system_info,
@@ -37,7 +37,7 @@ async def readiness_check(state: AppState = Depends(get_app_state)):
     """
     return {
         "status": "ready",
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "components": {
             "prime_generator": "available",
             "rsa_crypto": "available",
@@ -58,6 +58,6 @@ async def liveness_check():
     """
     return {
         "status": "alive",
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "version": settings.version,
     }
