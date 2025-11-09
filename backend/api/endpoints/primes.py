@@ -6,9 +6,13 @@ from api.dependencies import AppState, get_app_state, get_prime_generator
 from core.prime_generator import PrimeGenerator
 from models.schemas import PrimeGenerationRequest, PrimeGenerationResponse
 
+# create primes router
+###########################
 router = APIRouter(prefix="/primes", tags=["Prime Generation"])
 
 
+# generate prime numbers endpoint
+###########################
 @router.post("/generate", response_model=PrimeGenerationResponse)
 async def generate_primes(
     request: PrimeGenerationRequest,
@@ -49,6 +53,8 @@ async def generate_primes(
         raise HTTPException(status_code=500, detail=f"Prime generation failed: {str(e)}")
 
 
+# get current prime pair information endpoint
+###########################
 @router.get("/current")
 async def get_current_primes(state: AppState = Depends(get_app_state)):
     """Get currently stored prime pair information (without revealing the primes)"""

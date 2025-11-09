@@ -7,9 +7,13 @@ from core.rsa_crypto import RSACrypto
 from models.crypto_models import PrimePair
 from models.schemas import PrivateKey, PublicKey, RSAKeysResponse, RSAParameters
 
+# create keys router
+###########################
 router = APIRouter(prefix="/keys", tags=["Key Generation"])
 
 
+# generate RSA key pair endpoint
+###########################
 @router.post("/generate", response_model=RSAKeysResponse)
 async def generate_keys(
     prime_pair: PrimePair = Depends(require_primes),
@@ -41,6 +45,8 @@ async def generate_keys(
         raise HTTPException(status_code=500, detail=f"Key generation failed: {str(e)}")
 
 
+# get current keys endpoint
+###########################
 @router.get("/current")
 async def get_current_keys(state: AppState = Depends(get_app_state)):
     """Get information about currently stored keys (without revealing private key)"""
@@ -58,6 +64,8 @@ async def get_current_keys(state: AppState = Depends(get_app_state)):
     }
 
 
+# validate RSA keypair endpoint
+###########################
 @router.post("/validate")
 async def validate_keys(state: AppState = Depends(get_app_state)):
     """Validate the current RSA keypair"""

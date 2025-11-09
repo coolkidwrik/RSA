@@ -1,6 +1,6 @@
 from typing import Dict, List, Optional
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 from config.settings import settings
 
@@ -19,7 +19,7 @@ class PrimeGenerationRequest(BaseModel):
         description="Number of Miller-Rabin test rounds",
     )
 
-    @validator("bit_length")
+    @field_validator("bit_length")
     def validate_bit_length(cls, v):
         if v % 8 != 0:
             raise ValueError("Bit length should be divisible by 8")
@@ -62,13 +62,13 @@ class EncryptionRequest(BaseModel):
     n: str = Field(description="RSA modulus")
     e: str = Field(description="RSA public exponent")
 
-    @validator("n", "e")
-    def validate_key_components(cls, v):
-        try:
-            int(v)
-            return v
-        except ValueError:
-            raise ValueError("Key components must be valid integers")
+    # @field_validator("n", "e")
+    # def validate_key_components(cls, v):
+    #     try:
+    #         int(v)
+    #         return v
+    #     except ValueError:
+    #         raise ValueError("Key components must be valid integers")
 
 
 class BlockInfo(BaseModel):
@@ -91,7 +91,7 @@ class DecryptionRequest(BaseModel):
     n: str = Field(description="RSA modulus")
     d: str = Field(description="RSA private exponent")
 
-    @validator("encrypted_blocks")
+    @field_validator("encrypted_blocks")
     def validate_encrypted_blocks(cls, v):
         for block in v:
             try:

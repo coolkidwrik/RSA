@@ -47,14 +47,14 @@ class TestAPI:
     def test_prime_generation_endpoint(self, client):
         """Test prime generation endpoint"""
         response = client.post(
-            "/api/primes/generate", json={"bit_length": 64, "miller_rabin_rounds": 5}
+            "/api/primes/generate", json={"bit_length": 256, "miller_rabin_rounds": 5}
         )
         assert response.status_code == 200
         data = response.json()
         assert "p" in data
         assert "q" in data
         assert "generation_time" in data
-        assert data["bit_length"] == 64
+        assert data["bit_length"] == 256
 
     def test_key_generation_without_primes(self, client):
         """Test key generation without primes should fail"""
@@ -66,7 +66,7 @@ class TestAPI:
         """Test complete RSA workflow"""
         # Step 1: Generate primes
         prime_response = client.post(
-            "/api/primes/generate", json={"bit_length": 64, "miller_rabin_rounds": 5}
+            "/api/primes/generate", json={"bit_length": 256, "miller_rabin_rounds": 5}
         )
         assert prime_response.status_code == 200
 
